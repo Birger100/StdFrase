@@ -34,3 +34,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Database files
+*.db
+*.db-shm
+*.db-wal

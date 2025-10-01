@@ -1,6 +1,37 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './App.css'
+import FlowManager from './FlowManager'
 
+function App() {
+  const [activeTab, setActiveTab] = useState<'flows' | 'phrases'>('flows')
+
+  return (
+    <div className="app">
+      <nav className="nav-tabs">
+        <button 
+          className={`nav-tab ${activeTab === 'flows' ? 'active' : ''}`}
+          onClick={() => setActiveTab('flows')}
+        >
+          Flows
+        </button>
+        <button 
+          className={`nav-tab ${activeTab === 'phrases' ? 'active' : ''}`}
+          onClick={() => setActiveTab('phrases')}
+        >
+          Phrases (Legacy)
+        </button>
+      </nav>
+
+      {activeTab === 'flows' ? (
+        <FlowManager />
+      ) : (
+        <LegacyPhraseManager />
+      )}
+    </div>
+  )
+}
+
+// Legacy phrase manager component
 interface Phrase {
   id: number
   text: string
@@ -9,7 +40,7 @@ interface Phrase {
   updatedAt?: string
 }
 
-function App() {
+function LegacyPhraseManager() {
   const [phrases, setPhrases] = useState<Phrase[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -17,9 +48,9 @@ function App() {
 
   const apiUrl = 'http://localhost:5000/api/phrases'
 
-  useEffect(() => {
+  useState(() => {
     fetchPhrases()
-  }, [])
+  })
 
   const fetchPhrases = async () => {
     try {
