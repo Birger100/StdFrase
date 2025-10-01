@@ -214,6 +214,49 @@ public class FlowsController : ControllerBase
         return Ok(flows.Select(MapToExportFormat));
     }
 
+    [HttpGet("activities")]
+    public async Task<ActionResult<IEnumerable<ActivityDto>>> GetAllActivities([FromQuery] string? search = null)
+    {
+        _logger.LogInformation("Getting all unique activities");
+        
+        var query = _context.Activities
+            .Include(a => a.Fields)
+            .ThenInclude(f => f.Cuesta)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(a => a.Name.Contains(search) || (a.MoId != null && a.MoId.Contains(search)));
+        }
+
+        var activities = await query.ToListAsync();
+
+        // Get unique activities by name
+        var uniqueActivities = activities
+            .GroupBy(a => a.Name)
+            .Select(g => g.First())
+            .Select(a => new ActivityDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                MoId = a.MoId,
+                Fields = a.Fields.Select(f => new FieldDto
+                {
+                    Id = f.Id,
+                    FieldOrder = f.FieldOrder,
+                    FieldType = (int)f.FieldType,
+                    StandardPhrase = f.StandardPhrase,
+                    Cuesta = new CuestaDto
+                    {
+                        Id = f.Cuesta.Id,
+                        Path = f.Cuesta.Path
+                    }
+                }).ToList()
+            });
+
+        return Ok(uniqueActivities);
+    }
+
     private async Task<Cuesta> GetOrCreateCuesta(string path)
     {
         var cuesta = await _context.Cuestas.FirstOrDefaultAsync(c => c.Path == path);

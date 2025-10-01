@@ -126,9 +126,9 @@ function FlowManager() {
 
   const getFieldTypeName = (type: number) => {
     switch (type) {
-      case 0: return 'Text'
-      case 1: return 'Boolean'
-      case 2: return 'Choice'
+      case 0: return 'TextField'
+      case 1: return 'RadioButton'
+      case 2: return 'CheckField'
       default: return 'Unknown'
     }
   }
