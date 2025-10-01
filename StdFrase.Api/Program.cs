@@ -10,6 +10,8 @@ builder.Services.AddOpenApi();
 // Register repositories and services
 builder.Services.AddSingleton<IPhraseRepository, PhraseRepository>();
 builder.Services.AddScoped<IPhraseService, PhraseService>();
+builder.Services.AddSwaggerGen();     // from Swashbuckle
+
 
 // Configure CORS for React app
 builder.Services.AddCors(options =>
@@ -29,6 +31,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();    // JSON at /swagger/v1/swagger.json
+
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
