@@ -1,3 +1,38 @@
+.app {
+  min-height: 100vh;
+}
+
+.nav-tabs {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0 20px;
+  display: flex;
+  gap: 0;
+}
+
+.nav-tab {
+  padding: 15px 30px;
+  background-color: transparent;
+  color: #495057;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+.nav-tab.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: white;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
