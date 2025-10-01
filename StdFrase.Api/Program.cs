@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using StdFrase.Api.Data;
 using StdFrase.Api.Repositories;
 using StdFrase.Api.Services;
 
@@ -6,6 +8,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+// Register DbContext - Use SQLite in development, SQL Server in production
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+    else
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+});
 
 // Register repositories and services
 builder.Services.AddSingleton<IPhraseRepository, PhraseRepository>();
