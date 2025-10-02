@@ -135,6 +135,9 @@ public class FlowsController : ControllerBase
         // Remove all existing activities and fields
         _context.Activities.RemoveRange(flow.Activities);
         flow.Activities.Clear();
+        
+        // Save changes to commit deletions before adding new entities
+        await _context.SaveChangesAsync();
 
         // Add new activities and fields
         foreach (var actReq in req.Activity)
