@@ -119,11 +119,7 @@ public class FlowsController : ControllerBase
     {
         _logger.LogInformation("Updating flow with id {Id}", id);
 
-        var flow = await _context.Flows
-            .Include(f => f.Activities)
-            .ThenInclude(a => a.Fields)
-            .FirstOrDefaultAsync(f => f.Id == id);
-
+        var flow = await _context.Flows.FindAsync(id);
         if (flow == null)
         {
             return NotFound();
@@ -132,12 +128,34 @@ public class FlowsController : ControllerBase
         flow.Title = req.Title;
         flow.Sks = req.Sks;
 
-        // Remove all existing activities and fields
-        _context.Activities.RemoveRange(flow.Activities);
-        flow.Activities.Clear();
-        
-        // Save changes to commit deletions before adding new entities
-        await _context.SaveChangesAsync();
+        // Delete all existing activities (and their fields will be cascade deleted)
+        await _context.Activities.Where(a => a.FlowId == id).ExecuteDeleteAsync();
+
+        // Pre-create all needed cuestas
+        var cuestaIds = new Dictionary<string, Guid>();
+        foreach (var actReq in req.Activity)
+        {
+            if (actReq.Field != null)
+            {
+                foreach (var fieldReq in actReq.Field)
+                {
+                    if (!cuestaIds.ContainsKey(fieldReq.CuestaId))
+                    {
+                        var cuesta = await _context.Cuestas.FirstOrDefaultAsync(c => c.Path == fieldReq.CuestaId);
+                        if (cuesta == null)
+                        {
+                            cuesta = new Cuesta
+                            {
+                                Id = Guid.NewGuid(),
+                                Path = fieldReq.CuestaId
+                            };
+                            _context.Cuestas.Add(cuesta);
+                        }
+                        cuestaIds[fieldReq.CuestaId] = cuesta.Id;
+                    }
+                }
+            }
+        }
 
         // Add new activities and fields
         foreach (var actReq in req.Activity)
@@ -145,6 +163,7 @@ public class FlowsController : ControllerBase
             var activity = new Activity
             {
                 Id = Guid.NewGuid(),
+                FlowId = id,
                 Name = actReq.Name,
                 MoId = actReq.MoId
             };
@@ -153,12 +172,10 @@ public class FlowsController : ControllerBase
             {
                 foreach (var fieldReq in actReq.Field)
                 {
-                    var cuesta = await GetOrCreateCuesta(fieldReq.CuestaId);
-                    
                     activity.Fields.Add(new Field
                     {
                         Id = Guid.NewGuid(),
-                        Cuesta = cuesta,
+                        CuestaId = cuestaIds[fieldReq.CuestaId],
                         FieldOrder = fieldReq.FieldOrder,
                         FieldType = (FieldType)fieldReq.FieldType,
                         StandardPhrase = fieldReq.Standardphrase
@@ -166,7 +183,7 @@ public class FlowsController : ControllerBase
                 }
             }
 
-            flow.Activities.Add(activity);
+            _context.Activities.Add(activity);
         }
 
         await _context.SaveChangesAsync();
