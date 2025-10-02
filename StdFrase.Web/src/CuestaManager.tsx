@@ -14,7 +14,7 @@ function CuestaManager() {
   const [newCuestaPath, setNewCuestaPath] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const apiUrl = 'http://localhost:5000/api/cuestas'
+  const apiUrl = 'https://localhost:44306/api/cuestas'
 
   useEffect(() => {
     fetchCuestas()
@@ -23,7 +23,7 @@ function CuestaManager() {
   const fetchCuestas = async () => {
     try {
       setLoading(true)
-      const url = searchQuery 
+      const url = searchQuery
         ? `${apiUrl}?search=${encodeURIComponent(searchQuery)}`
         : apiUrl
       const response = await fetch(url)
