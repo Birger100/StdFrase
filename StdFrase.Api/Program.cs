@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using StdFrase.Api.Data;
-using StdFrase.Api.Repositories;
-using StdFrase.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +21,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Register repositories and services
-builder.Services.AddSingleton<IPhraseRepository, PhraseRepository>();
-builder.Services.AddScoped<IPhraseService, PhraseService>();
 builder.Services.AddSwaggerGen();     // from Swashbuckle
 
 

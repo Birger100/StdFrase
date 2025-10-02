@@ -86,6 +86,34 @@ public class CuestasController : ControllerBase
         });
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CuestaDto>> Update(Guid id, [FromBody] UpdateCuestaRequest req)
+    {
+        _logger.LogInformation("Updating cuesta with id {Id}", id);
+
+        var cuesta = await _context.Cuestas.FindAsync(id);
+        if (cuesta == null)
+        {
+            return NotFound();
+        }
+
+        // Check if the new path already exists for a different cuesta
+        var existing = await _context.Cuestas.FirstOrDefaultAsync(c => c.Path == req.Path && c.Id != id);
+        if (existing != null)
+        {
+            return Conflict("A cuesta with this path already exists");
+        }
+
+        cuesta.Path = req.Path;
+        await _context.SaveChangesAsync();
+
+        return Ok(new CuestaDto
+        {
+            Id = cuesta.Id,
+            Path = cuesta.Path
+        });
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {
