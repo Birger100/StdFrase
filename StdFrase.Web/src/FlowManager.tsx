@@ -43,7 +43,7 @@ function FlowManager() {
   const [availableCuestas, setAvailableCuestas] = useState<Cuesta[]>([])
   const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
-  const apiUrl = 'http://localhost:5000/api'
+  const apiUrl = 'https://localhost:44306/api'
 
   useEffect(() => {
     fetchFlows()
@@ -96,7 +96,7 @@ function FlowManager() {
       }
       const data = await response.json()
       const jsonString = JSON.stringify(data, null, 2)
-      
+
       // Download as file
       const blob = new Blob([jsonString], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
@@ -113,7 +113,7 @@ function FlowManager() {
 
   const deleteFlow = async (id: string) => {
     if (!confirm('Are you sure you want to delete this flow?')) return
-    
+
     try {
       const response = await fetch(`${apiUrl}/flows/${id}`, {
         method: 'DELETE',
@@ -351,13 +351,13 @@ function FlowManager() {
               <>
                 <h2>{selectedFlow.title}</h2>
                 {selectedFlow.sks && <p className="sks-code">SKS: {selectedFlow.sks}</p>}
-                
+
                 <h3>Activities</h3>
                 {selectedFlow.activities.map((activity) => (
                   <div key={activity.id} className="activity-card">
                     <h4>{activity.name}</h4>
                     {activity.moId && <p className="mo-id">MoId: {activity.moId}</p>}
-                    
+
                     {activity.fields.length > 0 && (
                       <>
                         <h5>Fields</h5>
@@ -419,7 +419,7 @@ function FlowManager() {
         <div className="modal-overlay" onClick={() => setShowFlowEditor(false)}>
           <div className="modal flow-editor-modal" onClick={(e) => e.stopPropagation()}>
             <h2>{editingFlow ? 'Edit Flow' : 'Create Flow'}</h2>
-            
+
             <div className="form-group">
               <label>Title *</label>
               <input
@@ -443,7 +443,7 @@ function FlowManager() {
             <div className="form-group">
               <label>Activities</label>
               <button onClick={addActivity} className="add-btn">Add Activity</button>
-              
+
               {activities.map((activity, actIndex) => (
                 <div key={actIndex} className="activity-editor">
                   <div className="activity-header">
@@ -496,7 +496,7 @@ function FlowManager() {
                   <div className="fields-section">
                     <label>Fields</label>
                     <button onClick={() => addFieldToActivity(actIndex)} className="add-field-btn">Add Field</button>
-                    
+
                     {activity.fields && activity.fields.map((field: any, fieldIndex: number) => (
                       <div key={fieldIndex} className="field-editor">
                         <div className="field-header">
