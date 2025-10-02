@@ -36,8 +36,14 @@ function FlowManager() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [importJson, setImportJson] = useState('')
   const [exportSks, setExportSks] = useState('')
+  const [showFlowEditor, setShowFlowEditor] = useState(false)
+  const [editingFlow, setEditingFlow] = useState<Flow | null>(null)
+  const [flowForm, setFlowForm] = useState({ title: '', sks: '' })
+  const [activities, setActivities] = useState<any[]>([])
+  const [availableCuestas, setAvailableCuestas] = useState<Cuesta[]>([])
+  const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
-  const apiUrl = 'http://localhost:5000/api'
+  const apiUrl = 'https://localhost:44306/api'
 
   useEffect(() => {
     fetchFlows()
@@ -90,7 +96,7 @@ function FlowManager() {
       }
       const data = await response.json()
       const jsonString = JSON.stringify(data, null, 2)
-      
+
       // Download as file
       const blob = new Blob([jsonString], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
@@ -107,7 +113,7 @@ function FlowManager() {
 
   const deleteFlow = async (id: string) => {
     if (!confirm('Are you sure you want to delete this flow?')) return
-    
+
     try {
       const response = await fetch(`${apiUrl}/flows/${id}`, {
         method: 'DELETE',
@@ -124,11 +130,146 @@ function FlowManager() {
     }
   }
 
+  const fetchCuestas = async (search = '') => {
+    try {
+      const response = await fetch(`${apiUrl}/cuestas${search ? `?search=${search}` : ''}`)
+      if (!response.ok) throw new Error('Failed to fetch cuestas')
+      const data = await response.json()
+      setAvailableCuestas(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const fetchActivities = async (search = '') => {
+    try {
+      const response = await fetch(`${apiUrl}/flows/activities${search ? `?search=${search}` : ''}`)
+      if (!response.ok) throw new Error('Failed to fetch activities')
+      const data = await response.json()
+      setAvailableActivities(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const openCreateFlow = () => {
+    setEditingFlow(null)
+    setFlowForm({ title: '', sks: '' })
+    setActivities([])
+    setShowFlowEditor(true)
+    fetchCuestas()
+    fetchActivities()
+  }
+
+  const openEditFlow = (flow: Flow) => {
+    setEditingFlow(flow)
+    setFlowForm({ title: flow.title, sks: flow.sks || '' })
+    setActivities(flow.activities.map(a => ({
+      name: a.name,
+      moId: a.moId || '',
+      fields: a.fields.map(f => ({
+        cuestaId: f.cuesta.path,
+        fieldOrder: f.fieldOrder,
+        fieldType: f.fieldType,
+        standardphrase: f.standardPhrase || ''
+      }))
+    })))
+    setShowFlowEditor(true)
+    fetchCuestas()
+    fetchActivities()
+  }
+
+  const saveFlow = async () => {
+    try {
+      const flowData = {
+        title: flowForm.title,
+        sks: flowForm.sks || null,
+        activity: activities.map(a => ({
+          name: a.name,
+          moId: a.moId || null,
+          field: a.fields && a.fields.length > 0 ? a.fields : null
+        }))
+      }
+
+      const url = editingFlow ? `${apiUrl}/flows/${editingFlow.id}` : `${apiUrl}/flows`
+      const method = editingFlow ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(flowData)
+      })
+
+      if (!response.ok) throw new Error(`Failed to ${editingFlow ? 'update' : 'create'} flow`)
+
+      await fetchFlows()
+      setShowFlowEditor(false)
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const addActivity = () => {
+    setActivities([...activities, { name: '', moId: '', fields: [] }])
+  }
+
+  const removeActivity = (index: number) => {
+    setActivities(activities.filter((_, i) => i !== index))
+  }
+
+  const updateActivity = (index: number, field: string, value: any) => {
+    const updated = [...activities]
+    updated[index][field] = value
+    setActivities(updated)
+  }
+
+  const addFieldToActivity = (activityIndex: number) => {
+    const updated = [...activities]
+    if (!updated[activityIndex].fields) {
+      updated[activityIndex].fields = []
+    }
+    updated[activityIndex].fields.push({
+      cuestaId: '',
+      fieldOrder: updated[activityIndex].fields.length + 1,
+      fieldType: 0,
+      standardphrase: ''
+    })
+    setActivities(updated)
+  }
+
+  const removeFieldFromActivity = (activityIndex: number, fieldIndex: number) => {
+    const updated = [...activities]
+    updated[activityIndex].fields = updated[activityIndex].fields.filter((_: any, i: number) => i !== fieldIndex)
+    setActivities(updated)
+  }
+
+  const updateField = (activityIndex: number, fieldIndex: number, field: string, value: any) => {
+    const updated = [...activities]
+    updated[activityIndex].fields[fieldIndex][field] = value
+    setActivities(updated)
+  }
+
+  const useExistingActivity = (activity: Activity, activityIndex: number) => {
+    const updated = [...activities]
+    updated[activityIndex] = {
+      name: activity.name,
+      moId: activity.moId || '',
+      fields: activity.fields.map(f => ({
+        cuestaId: f.cuesta.path,
+        fieldOrder: f.fieldOrder,
+        fieldType: f.fieldType,
+        standardphrase: f.standardPhrase || ''
+      }))
+    }
+    setActivities(updated)
+  }
+
   const getFieldTypeName = (type: number) => {
     switch (type) {
-      case 0: return 'Text'
-      case 1: return 'Boolean'
-      case 2: return 'Choice'
+      case 0: return 'TextField'
+      case 1: return 'RadioButton'
+      case 2: return 'CheckField'
       default: return 'Unknown'
     }
   }
@@ -138,6 +279,9 @@ function FlowManager() {
       <div className="header">
         <h1>Flow Manager</h1>
         <div className="header-actions">
+          <button onClick={openCreateFlow} className="create-btn">
+            Create Flow
+          </button>
           <button onClick={() => setShowImportModal(true)} className="import-btn">
             Import Flow
           </button>
@@ -178,15 +322,26 @@ function FlowManager() {
                 <div className="flow-stats">
                   {flow.activities.length} activities
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    deleteFlow(flow.id)
-                  }}
-                  className="delete-btn-small"
-                >
-                  Delete
-                </button>
+                <div className="flow-item-actions">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openEditFlow(flow)
+                    }}
+                    className="edit-btn-small"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteFlow(flow.id)
+                    }}
+                    className="delete-btn-small"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -196,13 +351,13 @@ function FlowManager() {
               <>
                 <h2>{selectedFlow.title}</h2>
                 {selectedFlow.sks && <p className="sks-code">SKS: {selectedFlow.sks}</p>}
-                
+
                 <h3>Activities</h3>
                 {selectedFlow.activities.map((activity) => (
                   <div key={activity.id} className="activity-card">
                     <h4>{activity.name}</h4>
                     {activity.moId && <p className="mo-id">MoId: {activity.moId}</p>}
-                    
+
                     {activity.fields.length > 0 && (
                       <>
                         <h5>Fields</h5>
@@ -253,6 +408,163 @@ function FlowManager() {
                 Import
               </button>
               <button onClick={() => setShowImportModal(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showFlowEditor && (
+        <div className="modal-overlay" onClick={() => setShowFlowEditor(false)}>
+          <div className="modal flow-editor-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>{editingFlow ? 'Edit Flow' : 'Create Flow'}</h2>
+
+            <div className="form-group">
+              <label>Title *</label>
+              <input
+                type="text"
+                value={flowForm.title}
+                onChange={(e) => setFlowForm({ ...flowForm, title: e.target.value })}
+                placeholder="Flow title"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>SKS Code</label>
+              <input
+                type="text"
+                value={flowForm.sks}
+                onChange={(e) => setFlowForm({ ...flowForm, sks: e.target.value })}
+                placeholder="SKS code (optional)"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Activities</label>
+              <button onClick={addActivity} className="add-btn">Add Activity</button>
+
+              {activities.map((activity, actIndex) => (
+                <div key={actIndex} className="activity-editor">
+                  <div className="activity-header">
+                    <h4>Activity {actIndex + 1}</h4>
+                    <button onClick={() => removeActivity(actIndex)} className="remove-btn">Remove</button>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Name *</label>
+                      <input
+                        type="text"
+                        value={activity.name}
+                        onChange={(e) => updateActivity(actIndex, 'name', e.target.value)}
+                        placeholder="Activity name"
+                        list={`activities-${actIndex}`}
+                      />
+                      <datalist id={`activities-${actIndex}`}>
+                        {availableActivities.map((a) => (
+                          <option key={a.id} value={a.name} />
+                        ))}
+                      </datalist>
+                    </div>
+
+                    <div className="form-group">
+                      <label>MoId</label>
+                      <input
+                        type="text"
+                        value={activity.moId}
+                        onChange={(e) => updateActivity(actIndex, 'moId', e.target.value)}
+                        placeholder="MoId (optional)"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="reuse-section">
+                    <label>Or reuse existing activity:</label>
+                    <select onChange={(e) => {
+                      const selectedActivity = availableActivities.find(a => a.id === e.target.value)
+                      if (selectedActivity) useExistingActivity(selectedActivity, actIndex)
+                      e.target.value = ''
+                    }}>
+                      <option value="">Select an activity...</option>
+                      {availableActivities.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="fields-section">
+                    <label>Fields</label>
+                    <button onClick={() => addFieldToActivity(actIndex)} className="add-field-btn">Add Field</button>
+
+                    {activity.fields && activity.fields.map((field: any, fieldIndex: number) => (
+                      <div key={fieldIndex} className="field-editor">
+                        <div className="field-header">
+                          <span>Field {fieldIndex + 1}</span>
+                          <button onClick={() => removeFieldFromActivity(actIndex, fieldIndex)} className="remove-field-btn">×</button>
+                        </div>
+
+                        <div className="form-row">
+                          <div className="form-group-small">
+                            <label>Order</label>
+                            <input
+                              type="number"
+                              value={field.fieldOrder}
+                              onChange={(e) => updateField(actIndex, fieldIndex, 'fieldOrder', parseInt(e.target.value))}
+                              min="1"
+                            />
+                          </div>
+
+                          <div className="form-group-small">
+                            <label>Type</label>
+                            <select
+                              value={field.fieldType}
+                              onChange={(e) => updateField(actIndex, fieldIndex, 'fieldType', parseInt(e.target.value))}
+                            >
+                              <option value={0}>TextField</option>
+                              <option value={1}>RadioButton</option>
+                              <option value={2}>CheckField</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Cuesta Path *</label>
+                            <input
+                              type="text"
+                              value={field.cuestaId}
+                              onChange={(e) => updateField(actIndex, fieldIndex, 'cuestaId', e.target.value)}
+                              placeholder="Cuesta path"
+                              list={`cuestas-${actIndex}-${fieldIndex}`}
+                            />
+                            <datalist id={`cuestas-${actIndex}-${fieldIndex}`}>
+                              {availableCuestas.map((c) => (
+                                <option key={c.id} value={c.path} />
+                              ))}
+                            </datalist>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Standard Phrase</label>
+                            <input
+                              type="text"
+                              value={field.standardphrase}
+                              onChange={(e) => updateField(actIndex, fieldIndex, 'standardphrase', e.target.value)}
+                              placeholder="Standard phrase (optional)"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={saveFlow} className="save-btn" disabled={!flowForm.title}>
+                {editingFlow ? 'Update' : 'Create'}
+              </button>
+              <button onClick={() => setShowFlowEditor(false)} className="cancel-btn">
                 Cancel
               </button>
             </div>
