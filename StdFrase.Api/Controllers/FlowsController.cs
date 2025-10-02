@@ -19,10 +19,10 @@ public class FlowsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<FlowDto>>> GetAll([FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<ActionResult<IEnumerable<FlowDto>>> GetAll([FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
     {
         _logger.LogInformation("Getting all flows");
-        
+
         var query = _context.Flows
             .Include(f => f.Activities)
             .ThenInclude(a => a.Fields)
@@ -31,7 +31,14 @@ public class FlowsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(f => f.Title.Contains(search) || (f.Sks != null && f.Sks.Contains(search)));
+            if (search.Length == 8) //only output on 8 char
+            {
+                query = query.Where(f => (f.Sks != null && f.Sks.Contains(search)));
+            }
+            else
+            {
+                query = query.Where(f => (f.Sks != null && f.Sks == search));
+            }
         }
 
         var flows = await query
@@ -46,7 +53,7 @@ public class FlowsController : ControllerBase
     public async Task<ActionResult<FlowDto>> GetById(Guid id)
     {
         _logger.LogInformation("Getting flow with id {Id}", id);
-        
+
         var flow = await _context.Flows
             .Include(f => f.Activities)
             .ThenInclude(a => a.Fields)
@@ -87,7 +94,7 @@ public class FlowsController : ControllerBase
                 foreach (var fieldReq in actReq.Field)
                 {
                     var cuesta = await GetOrCreateCuesta(fieldReq.CuestaId);
-                    
+
                     activity.Fields.Add(new Field
                     {
                         Id = Guid.NewGuid(),
@@ -238,7 +245,7 @@ public class FlowsController : ControllerBase
     public async Task<ActionResult<IEnumerable<ActivityDto>>> GetAllActivities([FromQuery] string? search = null)
     {
         _logger.LogInformation("Getting all unique activities");
-        
+
         var query = _context.Activities
             .Include(a => a.Fields)
             .ThenInclude(f => f.Cuesta)
@@ -304,18 +311,20 @@ public class FlowsController : ControllerBase
                 Id = a.Id,
                 Name = a.Name,
                 MoId = a.MoId,
-                Fields = a.Fields.Select(f => new FieldDto
-                {
-                    Id = f.Id,
-                    FieldOrder = f.FieldOrder,
-                    FieldType = (int)f.FieldType,
-                    StandardPhrase = f.StandardPhrase,
-                    Cuesta = new CuestaDto
+                Fields = a.Fields
+                    .OrderBy(f => f.FieldOrder) // Order fields by FieldOrder  
+                    .Select(f => new FieldDto
                     {
-                        Id = f.Cuesta.Id,
-                        Path = f.Cuesta.Path
-                    }
-                }).ToList()
+                        Id = f.Id,
+                        FieldOrder = f.FieldOrder,
+                        FieldType = (int)f.FieldType,
+                        StandardPhrase = f.StandardPhrase,
+                        Cuesta = new CuestaDto
+                        {
+                            Id = f.Cuesta.Id,
+                            Path = f.Cuesta.Path
+                        }
+                    }).ToList()
             }).ToList()
         };
     }

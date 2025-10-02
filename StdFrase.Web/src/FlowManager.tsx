@@ -43,7 +43,7 @@ function FlowManager() {
   const [availableCuestas, setAvailableCuestas] = useState<Cuesta[]>([])
   const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
-  const apiUrl = 'https://localhost:44306/api'
+  const apiUrl = 'https://sfApi.test.it.rn.dk/api'
 
   useEffect(() => {
     fetchFlows()

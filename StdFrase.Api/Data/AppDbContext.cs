@@ -9,7 +9,9 @@ public class AppDbContext : DbContext
     public DbSet<Field> Fields => Set<Field>();
     public DbSet<Cuesta> Cuestas => Set<Cuesta>();
 
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -43,7 +45,19 @@ public class AppDbContext : DbContext
              .HasForeignKey(f => f.CuestaId)
              .OnDelete(DeleteBehavior.Restrict);
 
+            b.Entity<Cuesta>(e =>
+            {
+                e.HasKey(c => c.Id); // Explicitly set the primary key
+                //e.HasIndex(c => c.Path).IsUnique();
+                e.Property(c => c.Path).IsRequired().HasMaxLength(1024);
+            });
             e.Property(f => f.StandardPhrase).HasMaxLength(256);
+            b.Entity<Cuesta>(e =>
+            {
+                e.HasKey(c => c.Id); // Explicitly set the primary key
+                e.HasIndex(c => c.Path).IsUnique();
+                e.Property(c => c.Path).IsRequired().HasMaxLength(1024);
+            });
             e.HasIndex(f => f.ActivityId);
             e.HasIndex(f => f.CuestaId);
         });

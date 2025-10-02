@@ -14,7 +14,7 @@ function CuestaManager() {
   const [newCuestaPath, setNewCuestaPath] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const apiUrl = 'https://localhost:44306/api/cuestas'
+  const apiUrl = 'https://sfApi.test.it.rn.dk/api/cuestas'
 
   useEffect(() => {
     fetchCuestas()

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StdFrase.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class SyncModel3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +15,8 @@ namespace StdFrase.Api.Migrations
                 name: "Cuestas",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Path = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Path = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,9 +27,9 @@ namespace StdFrase.Api.Migrations
                 name: "Flows",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    Sks = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Sks = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -40,10 +40,10 @@ namespace StdFrase.Api.Migrations
                 name: "Activities",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FlowId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    MoId = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FlowId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    MoId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -60,12 +60,12 @@ namespace StdFrase.Api.Migrations
                 name: "Fields",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ActivityId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CuestaId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FieldOrder = table.Column<int>(type: "INTEGER", nullable: false),
-                    FieldType = table.Column<short>(type: "INTEGER", nullable: false),
-                    StandardPhrase = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ActivityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CuestaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FieldOrder = table.Column<int>(type: "int", nullable: false),
+                    FieldType = table.Column<short>(type: "smallint", nullable: false),
+                    StandardPhrase = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
