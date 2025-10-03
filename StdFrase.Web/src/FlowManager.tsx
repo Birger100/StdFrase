@@ -446,7 +446,7 @@ function FlowManager() {
 
             <div className="form-group">
               <label>Activities</label>
-              <button onClick={addActivity} className="add-btn">Add Activity</button>
+              {activities.length > 0 && <button onClick={addActivity} className="add-btn">Add Activity</button>}
 
               {activities.map((activity, actIndex) => (
                 <div key={actIndex} className="activity-editor">
@@ -456,16 +456,6 @@ function FlowManager() {
                   </div>
 
                   <div className="form-row">
-                    <div className="form-group-small">
-                      <label>Order</label>
-                      <input
-                        type="number"
-                        value={activity.activityOrder}
-                        onChange={(e) => updateActivity(actIndex, 'activityOrder', parseInt(e.target.value) || 0)}
-                        min="1"
-                      />
-                    </div>
-
                     <div className="form-group">
                       <label>Name *</label>
                       <input
@@ -496,6 +486,16 @@ function FlowManager() {
                         value={activity.moId}
                         onChange={(e) => updateActivity(actIndex, 'moId', e.target.value)}
                         placeholder="MoId (optional)"
+                      />
+                    </div>
+
+                    <div className="form-group-small">
+                      <label>Order</label>
+                      <input
+                        type="number"
+                        value={activity.activityOrder}
+                        onChange={(e) => updateActivity(actIndex, 'activityOrder', parseInt(e.target.value) || 0)}
+                        min="1"
                       />
                     </div>
                   </div>
@@ -580,7 +580,11 @@ function FlowManager() {
                 </div>
               ))}
 
-              <button onClick={addActivity} className="add-btn">Add Activity</button>
+              {activities.length === 0 ? (
+                <button onClick={addActivity} className="add-btn">Add Activity</button>
+              ) : (
+                <button onClick={addActivity} className="add-btn">Add Activity</button>
+              )}
             </div>
 
             <div className="modal-actions">
