@@ -18,6 +18,7 @@ interface Activity {
   id: string
   name: string
   moId: string | null
+  activityOrder: number
   fields: Field[]
 }
 
@@ -167,6 +168,7 @@ function FlowManager() {
     setActivities(flow.activities.map(a => ({
       name: a.name,
       moId: a.moId || '',
+      activityOrder: a.activityOrder || 0,
       fields: a.fields.map(f => ({
         cuestaId: f.cuesta.path,
         fieldOrder: f.fieldOrder,
@@ -187,6 +189,7 @@ function FlowManager() {
         activity: activities.map(a => ({
           name: a.name,
           moId: a.moId || null,
+          activityOrder: a.activityOrder || 0,
           field: a.fields && a.fields.length > 0 ? a.fields : null
         }))
       }
@@ -211,7 +214,7 @@ function FlowManager() {
   }
 
   const addActivity = () => {
-    setActivities([...activities, { name: '', moId: '', fields: [] }])
+    setActivities([...activities, { name: '', moId: '', activityOrder: activities.length + 1, fields: [] }])
   }
 
   const removeActivity = (index: number) => {
@@ -255,6 +258,7 @@ function FlowManager() {
     updated[activityIndex] = {
       name: activity.name,
       moId: activity.moId || '',
+      activityOrder: updated[activityIndex].activityOrder,
       fields: activity.fields.map(f => ({
         cuestaId: f.cuesta.path,
         fieldOrder: f.fieldOrder,
@@ -452,12 +456,29 @@ function FlowManager() {
                   </div>
 
                   <div className="form-row">
+                    <div className="form-group-small">
+                      <label>Order</label>
+                      <input
+                        type="number"
+                        value={activity.activityOrder}
+                        onChange={(e) => updateActivity(actIndex, 'activityOrder', parseInt(e.target.value) || 0)}
+                        min="1"
+                      />
+                    </div>
+
                     <div className="form-group">
                       <label>Name *</label>
                       <input
                         type="text"
                         value={activity.name}
-                        onChange={(e) => updateActivity(actIndex, 'name', e.target.value)}
+                        onChange={(e) => {
+                          updateActivity(actIndex, 'name', e.target.value)
+                          // Auto-set moId when selecting from datalist
+                          const selectedActivity = availableActivities.find(a => a.name === e.target.value)
+                          if (selectedActivity && selectedActivity.moId) {
+                            updateActivity(actIndex, 'moId', selectedActivity.moId)
+                          }
+                        }}
                         placeholder="Activity name"
                         list={`activities-${actIndex}`}
                       />
@@ -558,6 +579,8 @@ function FlowManager() {
                   </div>
                 </div>
               ))}
+
+              <button onClick={addActivity} className="add-btn">Add Activity</button>
             </div>
 
             <div className="modal-actions">

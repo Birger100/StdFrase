@@ -3,8 +3,8 @@
 }
 
 .nav-tabs {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+  background-color: #fdf2f8;
+  border-bottom: 2px solid #f9a8d4;
   padding: 0 20px;
   display: flex;
   gap: 0;
@@ -13,7 +13,7 @@
 .nav-tab {
   padding: 15px 30px;
   background-color: transparent;
-  color: #495057;
+  color: #9d174d;
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
@@ -23,13 +23,13 @@
 }
 
 .nav-tab:hover {
-  background-color: #e9ecef;
-  color: #212529;
+  background-color: #fce7f3;
+  color: #be185d;
 }
 
 .nav-tab.active {
-  color: #007bff;
-  border-bottom-color: #007bff;
+  color: #ec4899;
+  border-bottom-color: #ec4899;
   background-color: white;
 }
 
@@ -40,13 +40,13 @@
 }
 
 h1 {
-  color: #333;
+  color: #d946cb;
   text-align: center;
   margin-bottom: 40px;
 }
 
 h2 {
-  color: #555;
+  color: #be185d;
   margin-bottom: 20px;
 }
 
@@ -82,7 +82,7 @@ input[type="text"] {
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #ec4899;
   color: white;
   border: none;
   border-radius: 4px;
@@ -91,7 +91,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #db2777;
 }
 
 .phrases-section {
