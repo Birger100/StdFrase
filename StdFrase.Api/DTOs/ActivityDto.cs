@@ -5,5 +5,6 @@ public class ActivityDto
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
     public string? MoId { get; set; }
+    public int ActivityOrder { get; set; }
     public List<FieldDto> Fields { get; set; } = new();
 }

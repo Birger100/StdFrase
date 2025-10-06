@@ -7,5 +7,6 @@ public class Activity
     public Flow Flow { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string? MoId { get; set; }
+    public int ActivityOrder { get; set; }
     public List<Field> Fields { get; set; } = new();
 }
