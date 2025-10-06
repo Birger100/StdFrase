@@ -1,11 +1,11 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #d946cb;
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 25%, #fae8ff 50%, #e9d5ff 75%, #ddd6fe 100%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -22,19 +22,66 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 25%, #fae8ff 50%, #e9d5ff 75%, #ddd6fe 100%);
+  background-attachment: fixed;
 }
 
 #root {
   width: 100%;
 }
 
+@keyframes sparkle-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+.sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  animation: sparkle-float 1s ease-out forwards;
+}
+
+.sparkle::before {
+  content: '✨';
+  position: absolute;
+  font-size: 16px;
+  top: -8px;
+  left: -8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.8) 50%, 
+    transparent 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #d946cb;
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 25%, #fae8ff 50%, #e9d5ff 75%, #ddd6fe 100%);
   }
   body {
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 25%, #fae8ff 50%, #e9d5ff 75%, #ddd6fe 100%);
+    background-attachment: fixed;
   }
 }
