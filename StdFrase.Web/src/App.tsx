@@ -1,26 +1,67 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import FlowManager from './FlowManager'
 import CuestaManager from './CuestaManager'
+import AccessDenied from './AccessDenied'
+import { AuthProvider, useAuth } from './AuthContext'
 
-function App() {
+import config from './config'
+
+function AppContent() {
   const [activeTab, setActiveTab] = useState<'flows' | 'cuestas'>('flows')
+  const { user, loading, checkAccess } = useAuth()
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const verifyAccess = async () => {
+      if (user?.isAuthenticated) {
+        const access = await checkAccess()
+        setHasAccess(access)
+      } else {
+        setHasAccess(false)
+      }
+    }
+
+    if (!loading) {
+      verifyAccess()
+    }
+  }, [user, loading, checkAccess])
+
+  if (loading || hasAccess === null) {
+    return (
+      <div className="app">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Authenticating...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return <AccessDenied userName={user?.userName} />
+  }
 
   return (
     <div className="app">
       <nav className="nav-tabs">
-        <button 
+        <button
           className={`nav-tab ${activeTab === 'flows' ? 'active' : ''}`}
           onClick={() => setActiveTab('flows')}
         >
           Flows
         </button>
-        <button 
+        <button
           className={`nav-tab ${activeTab === 'cuestas' ? 'active' : ''}`}
           onClick={() => setActiveTab('cuestas')}
         >
           Cuestas
         </button>
+        {user?.userName && (
+          <div className="user-info-nav">
+            Logged in as: <strong>{user.userName}</strong>
+          </div>
+        )}
       </nav>
 
       {activeTab === 'flows' ? (
@@ -29,6 +70,14 @@ function App() {
         <CuestaManager />
       )}
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider apiUrl={config.API_URL}>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

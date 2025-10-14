@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using StdFrase.Api.Authorization;
 using StdFrase.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+// Configure Windows Authentication
+
+
+// Configure Authorization with allowed users policy
+var allowedUsers = builder.Configuration.GetSection("Authentication:AllowedUsers").Get<List<string>>() ?? new List<string>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AllowedUsersPolicy", policy =>
+        policy.Requirements.Add(new AllowedUsersRequirement(allowedUsers)));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, AllowedUsersHandler>();
 
 // Register DbContext - Use SQLite in development, SQL Server in production
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -24,7 +40,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://sfweb.test.it.rn.dk")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -41,6 +58,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowReactApp");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './FlowManager.css'
+import config from './config'
 
 interface Cuesta {
   id: string
@@ -44,7 +45,7 @@ function FlowManager() {
   const [availableCuestas, setAvailableCuestas] = useState<Cuesta[]>([])
   const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
-  const apiUrl = 'https://sfApi.test.it.rn.dk/api'
+  const apiUrl = config.API_URL
 
   useEffect(() => {
     fetchFlows()
@@ -53,7 +54,9 @@ function FlowManager() {
   const fetchFlows = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${apiUrl}/flows`)
+      const response = await fetch(`${apiUrl}/flows`, {
+        credentials: 'include'
+      })
       if (!response.ok) {
         throw new Error('Failed to fetch flows')
       }
@@ -75,6 +78,7 @@ function FlowManager() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(flowData),
       })
       if (!response.ok) {
@@ -91,7 +95,9 @@ function FlowManager() {
 
   const exportFlowsBySks = async () => {
     try {
-      const response = await fetch(`${apiUrl}/flows/export?sks=${exportSks}`)
+      const response = await fetch(`${apiUrl}/flows/export?sks=${exportSks}`, {
+        credentials: 'include'
+      })
       if (!response.ok) {
         throw new Error('Failed to export flows')
       }
@@ -118,6 +124,7 @@ function FlowManager() {
     try {
       const response = await fetch(`${apiUrl}/flows/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
       if (!response.ok) {
         throw new Error('Failed to delete flow')
@@ -133,7 +140,9 @@ function FlowManager() {
 
   const fetchCuestas = async (search = '') => {
     try {
-      const response = await fetch(`${apiUrl}/cuestas${search ? `?search=${search}` : ''}`)
+      const response = await fetch(`${apiUrl}/cuestas${search ? `?search=${search}` : ''}`, {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch cuestas')
       const data = await response.json()
       setAvailableCuestas(data)
@@ -144,7 +153,9 @@ function FlowManager() {
 
   const fetchActivities = async (search = '') => {
     try {
-      const response = await fetch(`${apiUrl}/flows/activities${search ? `?search=${search}` : ''}`)
+      const response = await fetch(`${apiUrl}/flows/activities${search ? `?search=${search}` : ''}`, {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch activities')
       const data = await response.json()
       setAvailableActivities(data)
@@ -200,6 +211,7 @@ function FlowManager() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(flowData)
       })
 

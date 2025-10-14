@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './CuestaManager.css'
+import config from './config'
 
 interface Cuesta {
   id: string
@@ -14,7 +15,7 @@ function CuestaManager() {
   const [newCuestaPath, setNewCuestaPath] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const apiUrl = 'https://sfApi.test.it.rn.dk/api/cuestas'
+  const apiUrl = config.API_URL + '/cuestas'
 
   useEffect(() => {
     fetchCuestas()
@@ -26,7 +27,9 @@ function CuestaManager() {
       const url = searchQuery
         ? `${apiUrl}?search=${encodeURIComponent(searchQuery)}`
         : apiUrl
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        credentials: 'include'
+      })
       if (!response.ok) {
         throw new Error('Failed to fetch cuestas')
       }
@@ -50,6 +53,7 @@ function CuestaManager() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ path: newCuestaPath }),
       })
       if (!response.ok) {
@@ -73,6 +77,7 @@ function CuestaManager() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ path: editingCuesta.path }),
       })
       if (!response.ok) {
@@ -93,6 +98,7 @@ function CuestaManager() {
     try {
       const response = await fetch(`${apiUrl}/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
       if (!response.ok) {
         const errorText = await response.text()

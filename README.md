@@ -111,6 +111,11 @@ npm run build
 
 ## Features
 
+### Security
+- **Windows Authentication**: The application uses Windows authentication with Negotiate (Kerberos/NTLM)
+- **Authorization**: Access is restricted to allowed users configured in `appsettings.json`
+- **User-friendly Access Denied**: Clear messaging for unauthorized users with helpful instructions
+
 ### Flow Management
 - Import clinical flows from JSON format
 - View flow details with nested activities and fields
@@ -144,6 +149,50 @@ Configured for SQL Server. Update the connection string in `appsettings.json`:
   "DefaultConnection": "Server=YOUR_SERVER;Database=StdFraseDb;Trusted_Connection=true;"
 }
 ```
+
+## Authentication and Authorization
+
+The application uses Windows authentication to secure access. Only users listed in the configuration file can access the application.
+
+### Configuring Allowed Users
+
+Edit the `appsettings.json` file to add or remove allowed users:
+
+```json
+"Authentication": {
+  "AllowedUsers": [
+    "DOMAIN\\user1",
+    "DOMAIN\\user2",
+    "DOMAIN\\adminuser"
+  ]
+}
+```
+
+**Important Notes:**
+- User names must be in Windows format: `DOMAIN\\username` where:
+  - `DOMAIN` is your Windows/Active Directory domain name (e.g., `CONTOSO`, `COMPANY`, etc.)
+  - `\\` is a double backslash (required in JSON to escape the backslash)
+  - `username` is the Windows user account name
+- Example: If a user's Windows login is `CONTOSO\john.doe`, use `"CONTOSO\\john.doe"` in the JSON
+- User names are case-insensitive
+- Changes to the allowed users list require restarting the API application
+- Users not in the list will see a clear access denied page with instructions
+
+### Authentication Endpoints
+
+- `GET /api/auth/user` - Get current authenticated user information (no authorization required)
+- `GET /api/auth/check` - Check if the current user has access (requires authorization)
+
+### How It Works
+
+1. The API uses ASP.NET Core's Windows Authentication (Negotiate) 
+2. When a user accesses the application, their Windows credentials are automatically sent
+3. The application checks if the authenticated user is in the allowed users list
+4. If authorized, the user can access all features
+5. If not authorized, a user-friendly access denied page is displayed with:
+   - The user's Windows account name
+   - Explanation of why access was denied
+   - Instructions on how to request access
 
 ## JSON Format
 
