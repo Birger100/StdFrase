@@ -46,6 +46,7 @@ function FlowManager() {
   const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
   const apiUrl = config.API_URL
+  const apiKey = config.ApiKey
 
   useEffect(() => {
     fetchFlows()
@@ -53,9 +54,13 @@ function FlowManager() {
 
   const fetchFlows = async () => {
     try {
+      console.log('Fetching flows with API key: ' + apiKey)
       setLoading(true)
-      const response = await fetch(`${apiUrl}/flows`, {
-        credentials: 'include'
+      const response = await fetch(`${apiUrl}/rpa`, {
+        credentials: 'include',
+        headers: {
+          'apikey': `${apiKey}`
+        }
       })
       if (!response.ok) {
         throw new Error('Failed to fetch flows')

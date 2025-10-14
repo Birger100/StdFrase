@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using StdFrase.Api.Authenticators;
 using StdFrase.Api.Authorization;
 using StdFrase.Api.Data;
 
@@ -11,7 +11,6 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Configure Windows Authentication
-
 
 // Configure Authorization with allowed users policy
 var allowedUsers = builder.Configuration.GetSection("Authentication:AllowedUsers").Get<List<string>>() ?? new List<string>();
@@ -30,8 +29,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Register repositories and services
-builder.Services.AddSwaggerGen();     // from Swashbuckle
-
+builder.Services.AddSwaggerGen(c =>
+{
+    //Add header option to swagger ui, to be able to insert APIKEY manually:
+    c.OperationFilter<AddRequiredHeaderParameter>();
+});
 // Configure CORS for React app
 builder.Services.AddCors(options =>
 {

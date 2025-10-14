@@ -20,37 +20,6 @@ public class FlowsController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<FlowDto>>> GetAll([FromQuery] string? search = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
-    {
-        _logger.LogInformation("Getting all flows");
-
-        var query = _context.Flows
-            .Include(f => f.Activities)
-            .ThenInclude(a => a.Fields)
-            .ThenInclude(f => f.Cuesta)
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            if (search.Length == 8) //only output on 8 char
-            {
-                query = query.Where(f => (f.Sks != null && f.Sks.Contains(search)));
-            }
-            else
-            {
-                query = query.Where(f => (f.Sks != null && f.Sks == search));
-            }
-        }
-
-        var flows = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return Ok(flows.Select(MapToDto));
-    }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<FlowDto>> GetById(Guid id)
     {
@@ -67,7 +36,7 @@ public class FlowsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(MapToDto(flow));
+        return Ok(DtoMapper.MapToDto(flow));
     }
 
     [HttpPost]
@@ -121,7 +90,7 @@ public class FlowsController : ControllerBase
             .ThenInclude(f => f.Cuesta)
             .FirstAsync(f => f.Id == flow.Id);
 
-        return CreatedAtAction(nameof(GetById), new { id = flow.Id }, MapToDto(created));
+        return CreatedAtAction(nameof(GetById), new { id = flow.Id }, DtoMapper.MapToDto(created));
     }
 
     [HttpPut("{id}")]
@@ -205,7 +174,7 @@ public class FlowsController : ControllerBase
             .ThenInclude(f => f.Cuesta)
             .FirstAsync(f => f.Id == id);
 
-        return Ok(MapToDto(updated));
+        return Ok(DtoMapper.MapToDto(updated));
     }
 
     [HttpDelete("{id}")]
@@ -301,39 +270,6 @@ public class FlowsController : ControllerBase
             _context.Cuestas.Add(cuesta);
         }
         return cuesta;
-    }
-
-    private static FlowDto MapToDto(Flow flow)
-    {
-        return new FlowDto
-        {
-            Id = flow.Id,
-            Title = flow.Title,
-            Sks = flow.Sks,
-            Activities = flow.Activities
-                .OrderBy(a => a.ActivityOrder) // Order activities by ActivityOrder
-                .Select(a => new ActivityDto
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    MoId = a.MoId,
-                    ActivityOrder = a.ActivityOrder,
-                    Fields = a.Fields
-                        .OrderBy(f => f.FieldOrder) // Order fields by FieldOrder  
-                        .Select(f => new FieldDto
-                        {
-                            Id = f.Id,
-                            FieldOrder = f.FieldOrder,
-                            FieldType = (int)f.FieldType,
-                            StandardPhrase = f.StandardPhrase,
-                            Cuesta = new CuestaDto
-                            {
-                                Id = f.Cuesta.Id,
-                                Path = f.Cuesta.Path
-                            }
-                        }).ToList()
-                }).ToList()
-        };
     }
 
     private static CreateFlowRequest MapToExportFormat(Flow flow)
