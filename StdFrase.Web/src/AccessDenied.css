@@ -1,0 +1,92 @@
+.access-denied-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.access-denied-card {
+  background: white;
+  border-radius: 12px;
+  padding: 48px;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.access-denied-icon {
+  color: #e53e3e;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.access-denied-card h1 {
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: #2d3748;
+}
+
+.access-denied-message {
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.access-denied-message > p {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.user-info {
+  background: #edf2f7;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #2d3748;
+  margin: 24px 0;
+}
+
+.user-info strong {
+  color: #2b6cb0;
+}
+
+.access-denied-details {
+  text-align: left;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.access-denied-details h3 {
+  font-size: 18px;
+  color: #2d3748;
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
+
+.access-denied-details h3:first-child {
+  margin-top: 0;
+}
+
+.access-denied-details ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.access-denied-details li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #4a5568;
+}
+
+.access-denied-details li:before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: #667eea;
+  font-weight: bold;
+}

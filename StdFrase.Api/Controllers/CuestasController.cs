@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StdFrase.Api.Data;
@@ -7,6 +8,7 @@ namespace StdFrase.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AllowedUsersPolicy")]
 public class CuestasController : ControllerBase
 {
     private readonly AppDbContext _context;
