@@ -169,7 +169,11 @@ Edit the `appsettings.json` file to add or remove allowed users:
 ```
 
 **Important Notes:**
-- User names must be in the format `DOMAIN\\username` (double backslash in JSON)
+- User names must be in Windows format: `DOMAIN\\username` where:
+  - `DOMAIN` is your Windows/Active Directory domain name (e.g., `CONTOSO`, `COMPANY`, etc.)
+  - `\\` is a double backslash (required in JSON to escape the backslash)
+  - `username` is the Windows user account name
+- Example: If a user's Windows login is `CONTOSO\john.doe`, use `"CONTOSO\\john.doe"` in the JSON
 - User names are case-insensitive
 - Changes to the allowed users list require restarting the API application
 - Users not in the list will see a clear access denied page with instructions
