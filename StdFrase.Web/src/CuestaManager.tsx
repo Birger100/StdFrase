@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './CuestaManager.css'
+import config from './config'
 
 interface Cuesta {
   id: string
@@ -14,7 +15,7 @@ function CuestaManager() {
   const [newCuestaPath, setNewCuestaPath] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const apiUrl = 'https://sfApi.test.it.rn.dk/api/cuestas'
+  const apiUrl = config.API_URL + '/cuestas'
 
   useEffect(() => {
     fetchCuestas()

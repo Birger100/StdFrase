@@ -15,12 +15,13 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("user")]
+    [Authorize]
     public ActionResult<object> GetCurrentUser()
     {
         var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
         var userName = User?.Identity?.Name;
 
-        _logger.LogInformation("User info requested. Authenticated: {IsAuthenticated}, UserName: {UserName}", 
+        _logger.LogInformation("User info requested. Authenticated: {IsAuthenticated}, UserName: {UserName}",
             isAuthenticated, userName);
 
         return Ok(new

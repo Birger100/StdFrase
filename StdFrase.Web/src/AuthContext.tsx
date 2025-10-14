@@ -35,15 +35,18 @@ export const AuthProvider = ({ children, apiUrl }: AuthProviderProps) => {
 
   const checkAuth = async () => {
     try {
+      console.log('Checking authentication status...' + apiUrl)
+
       const response = await fetch(`${apiUrl}/auth/user`, {
         credentials: 'include',
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to authenticate')
       }
-      
+
       const data = await response.json()
+      console.log('Authenticated user:', data)
       setUser(data)
       setError(null)
       return data
@@ -62,16 +65,16 @@ export const AuthProvider = ({ children, apiUrl }: AuthProviderProps) => {
       const response = await fetch(`${apiUrl}/auth/check`, {
         credentials: 'include',
       })
-      
+
       if (response.status === 403) {
         // User is authenticated but not authorized
         return false
       }
-      
+
       if (!response.ok) {
         throw new Error('Failed to check access')
       }
-      
+
       return true
     } catch (err) {
       console.error('Access check failed:', err)

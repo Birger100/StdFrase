@@ -12,12 +12,13 @@ public class AllowedUsersHandler : AuthorizationHandler<AllowedUsersRequirement>
     }
 
     protected override Task HandleRequirementAsync(
-        AuthorizationHandlerContext context,
-        AllowedUsersRequirement requirement)
+           AuthorizationHandlerContext context,
+           AllowedUsersRequirement requirement)
     {
         if (context.User?.Identity?.IsAuthenticated != true)
         {
             _logger.LogWarning("User is not authenticated");
+            context.Fail(); // Explicitly fail the authorization
             return Task.CompletedTask;
         }
 
@@ -27,11 +28,12 @@ public class AllowedUsersHandler : AuthorizationHandler<AllowedUsersRequirement>
         if (string.IsNullOrEmpty(userName))
         {
             _logger.LogWarning("User name is null or empty");
+            context.Fail(); // Explicitly fail the authorization
             return Task.CompletedTask;
         }
 
         // Check if user is in allowed list (case-insensitive comparison)
-        if (requirement.AllowedUsers.Any(u => 
+        if (requirement.AllowedUsers.Any(u =>
             string.Equals(u, userName, StringComparison.OrdinalIgnoreCase)))
         {
             _logger.LogInformation("User {UserName} is authorized", userName);
@@ -40,6 +42,7 @@ public class AllowedUsersHandler : AuthorizationHandler<AllowedUsersRequirement>
         else
         {
             _logger.LogWarning("User {UserName} is not in the allowed users list", userName);
+            context.Fail(); // Explicitly fail the authorization
         }
 
         return Task.CompletedTask;

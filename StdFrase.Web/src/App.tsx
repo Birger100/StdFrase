@@ -5,7 +5,7 @@ import CuestaManager from './CuestaManager'
 import AccessDenied from './AccessDenied'
 import { AuthProvider, useAuth } from './AuthContext'
 
-const API_URL = 'https://sfApi.test.it.rn.dk/api'
+import config from './config'
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<'flows' | 'cuestas'>('flows')
@@ -21,7 +21,7 @@ function AppContent() {
         setHasAccess(false)
       }
     }
-    
+
     if (!loading) {
       verifyAccess()
     }
@@ -45,13 +45,13 @@ function AppContent() {
   return (
     <div className="app">
       <nav className="nav-tabs">
-        <button 
+        <button
           className={`nav-tab ${activeTab === 'flows' ? 'active' : ''}`}
           onClick={() => setActiveTab('flows')}
         >
           Flows
         </button>
-        <button 
+        <button
           className={`nav-tab ${activeTab === 'cuestas' ? 'active' : ''}`}
           onClick={() => setActiveTab('cuestas')}
         >
@@ -75,7 +75,7 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider apiUrl={API_URL}>
+    <AuthProvider apiUrl={config.API_URL}>
       <AppContent />
     </AuthProvider>
   )

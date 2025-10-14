@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './FlowManager.css'
+import config from './config'
 
 interface Cuesta {
   id: string
@@ -44,7 +45,7 @@ function FlowManager() {
   const [availableCuestas, setAvailableCuestas] = useState<Cuesta[]>([])
   const [availableActivities, setAvailableActivities] = useState<Activity[]>([])
 
-  const apiUrl = 'https://sfApi.test.it.rn.dk/api'
+  const apiUrl = config.API_URL
 
   useEffect(() => {
     fetchFlows()

@@ -11,8 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Configure Windows Authentication
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-    .AddNegotiate();
+
 
 // Configure Authorization with allowed users policy
 var allowedUsers = builder.Configuration.GetSection("Authentication:AllowedUsers").Get<List<string>>() ?? new List<string>();
