@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://sfweb.test.it.rn.dk")
+            policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://sfweb.test.it.rn.dk", "https://standardfraser.it.rn.dk")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();

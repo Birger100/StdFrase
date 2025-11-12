@@ -54,7 +54,6 @@ function FlowManager() {
 
   const fetchFlows = async () => {
     try {
-      console.log('Fetching flows with API key: ' + apiKey)
       setLoading(true)
       const response = await fetch(`${apiUrl}/rpa`, {
         credentials: 'include',
